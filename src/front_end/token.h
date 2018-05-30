@@ -136,5 +136,9 @@ enum {
  */
     DEREF,          /* -> */
 
+/*
+ * Variable or function name
+ */
+    NAME,
 
 } token;
