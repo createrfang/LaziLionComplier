@@ -92,7 +92,7 @@ volatile		{return VOLATILE;}
 [~]				{return NOT;}
 [&]				{return AND;}
 [|]				{return OR;}
-
+[^]				{return XOR;}
 [<][<]			{return LSHFT;}
 [>][>]			{return RSHFT;}
 
