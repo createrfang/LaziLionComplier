@@ -3,30 +3,31 @@
 struct AstClass;
 struct AstVar;
 struct AstExp;
-struct AstStmt; 
-struct AstStmts;
+struct AstStmt;
+struct AstStmtList;
 struct AstFor;
 struct AstIfElse;
 struct AstAssign;
 
-struct AstVar: struct AstClass{
+struct AstClass{
+
+};
+struct AstVar: public AstClass{
     std::string name;
     AstVar(std::string s): name(s) {}
 };
 
-struct AstStmts: struct AstClass{
-}
-struct AstStmt: struct AstClass{
+struct AstStmt: public AstClass{
     AstClass *son;
-}
+};
 
-struct AstIfElse{
+struct AstIfElse: public AstClass{
     AstExp * condition;
     AstStmt * trueStmt;
     AstStmt * falseStmt;
-}
+};
 
-struct AstStmt{
+struct AstFor: public AstClass{
 
-}
+};
 

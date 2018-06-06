@@ -1,10 +1,10 @@
 %{
 #include "../ast.h"
-#include "../lex/token.h"
 int yylex();
 void yyerror(char *s);
 %}
 
+%token LCURLYBRACKET RCURLYBRACKET LPAREN RPAREN SEMICOLON
 %token CHAR DOUBLE ENUM FLOAT INT LONG SHORT STRUCT UNION UNSIGNED VOID
 %token FOR DO WHILE IF ELSE BREAK CONTINUE GOTO SWITCH CASE DEFAULT RETURN
 %token AUTO EXTERN REGISTER STATIC
@@ -18,19 +18,18 @@ void yyerror(char *s);
 %token DEREF
 
 %%
-function_def: data_type name LPAREN RPAREN fun_body
-fun_body: LCURLYBRACKET stmts RCURLYBRACKET
-body: fun_body
-    | stmt
-stmts: 
-    | stmt SEMICOLON stmts
+function_def: data_type name LPAREN RPAREN compound_stmt
+stmt_list: stmt
+         | stmt_list stmt
 stmt: assign_stmt
     | for_stmt
     | if_else
     | var_def
-if_else: IF LPAREN exp RPAREN body
-       | IF LPAREN exp RPAREN body ELSE body
-for_stmt: FOR LPAREN stmts SEMICOLON exp SEMICOLON stmts RPAREN body
+    | compound_stmt
+compound_stmt: '{' stmt_list '}'
+if_else: IF LPAREN exp RPAREN stmt
+       | IF LPAREN exp RPAREN stmt ELSE stmt
+for_stmt: FOR LPAREN stmt SEMICOLON exp SEMICOLON stmt RPAREN stmt
 assign_stmt: name ASSIGN exp
 var_def: data_type name
 data_type: INT
@@ -43,7 +42,7 @@ logical_or_exp: logical_and_exp
 logical_and_exp: relation_exp
                | relation_exp LAND relation_exp
 relation_exp: add_exp 
-            | add_exp ralation_op add_exp
+            | add_exp relation_op add_exp
 relation_op: EQ
            | NEQ
            | GT
@@ -65,3 +64,9 @@ exp_element: NUM
 
 %%
 
+void yyerror(char *s){
+
+}
+int yylex(){
+
+}
