@@ -1,19 +1,23 @@
 #include <string>
 
+struct AstClass;
 struct AstVar;
 struct AstExp;
 struct AstStmt; 
+struct AstStmts;
 struct AstFor;
 struct AstIfElse;
 struct AstAssign;
 
-struct AstVar{
+struct AstVar: struct AstClass{
     std::string name;
     AstVar(std::string s): name(s) {}
 };
 
-struct AstStmt{
-    void *son;
+struct AstStmts: struct AstClass{
+}
+struct AstStmt: struct AstClass{
+    AstClass *son;
 }
 
 struct AstIfElse{
@@ -23,5 +27,6 @@ struct AstIfElse{
 }
 
 struct AstStmt{
+
 }
 

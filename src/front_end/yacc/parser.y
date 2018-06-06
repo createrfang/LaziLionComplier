@@ -5,7 +5,17 @@ int yylex();
 void yyerror(char *s);
 %}
 
-%token TEMP
+%token CHAR DOUBLE ENUM FLOAT INT LONG SHORT STRUCT UNION UNSIGNED VOID
+%token FOR DO WHILE IF ELSE BREAK CONTINUE GOTO SWITCH CASE DEFAULT RETURN
+%token AUTO EXTERN REGISTER STATIC
+%token CONST SIZEOF TYPEDEF VOLATILE
+%token NUM STRING CHARACTER NAME
+%token ASSIGN MUL DIV PLUS MINUS MODULO INC DEC
+%token EQ NEQ GT LT GE LE
+%token LNOT LAND LOR
+%token NOT AND OR XOR LSHFT RSHFT
+%token ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN MODASSIGN ANDASSIGN ORASSIGN XORASSIGN LSHASSIGN RSHASSIGN
+%token DEREF
 
 %%
 function_def: data_type name LPAREN RPAREN fun_body
@@ -18,7 +28,8 @@ stmt: assign_stmt
     | for_stmt
     | if_else
     | var_def
-if_else: IF LPAREN exp RPAREN ELSE body
+if_else: IF LPAREN exp RPAREN body
+       | IF LPAREN exp RPAREN body ELSE body
 for_stmt: FOR LPAREN stmts SEMICOLON exp SEMICOLON stmts RPAREN body
 assign_stmt: name ASSIGN exp
 var_def: data_type name
