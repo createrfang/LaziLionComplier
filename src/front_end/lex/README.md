@@ -1,19 +1,19 @@
-##Lex Analysis
+## Lex Analysis
 
-#### Compliation Steps
+### Compliation Steps
 ```
 lex lex.l
 gcc lex.yy.c -ll
 ./a.out [filename]
 ```
 
-#### Run Test
+### Run Test
 ```
 cd ./test
 ./test.sh
 ```
 
-#### Test Case
+### Test Case
 ``` C
 int main(void)
 {
@@ -27,7 +27,7 @@ int main(void)
 }
 ```
 
-#### Analysis Result
+### Analysis Result
 ```
 INT NAME (VOID) { 
     INT NAME ASSIGN NUM;
