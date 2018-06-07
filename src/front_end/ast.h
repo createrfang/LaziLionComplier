@@ -74,9 +74,9 @@ struct AstAssignStmt: public AstClass{
 };
 
 struct AstVarDef: public AstClass{
-    AstClass *dataType;
+    yytokentype dataType;
     AstClass *name;
-    AstVarDef(AstClass*a1, AstClass *a2): dataType(a1), name(a2), AstClass(ctVarDef){}
+    AstVarDef(yytokentype a1, AstClass *a2): dataType(a1), name(a2), AstClass(ctVarDef){}
 };
 
 struct AstName: public AstClass{
