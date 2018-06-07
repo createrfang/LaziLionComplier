@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "token.h"
 %}
 
 digit		[0-9]
@@ -92,7 +93,7 @@ volatile		{return VOLATILE;}
 [~]				{return NOT;}
 [&]				{return AND;}
 [|]				{return OR;}
-[^]				{return XOR;}
+[\^]				{return XOR;}
 [<][<]			{return LSHFT;}
 [>][>]			{return RSHFT;}
 
@@ -104,7 +105,7 @@ volatile		{return VOLATILE;}
 [%][=]			{return MODASSIGN;}
 [&][=]			{return ANDASSIGN;}
 [|][|][=]		{return ORASSIGN;}
-[^][=]			{return XORASSIGN;}
+[\^][=]			{return XORASSIGN;}
 [<][<][=]		{return LSHASSIGN;}
 [>][>][=]		{return RSHASSIGN;}
 
@@ -116,12 +117,16 @@ volatile		{return VOLATILE;}
 {note}			{/* do nothing */}
 
 .				{ 
-					printf("Error character %s at line %d, yytext, yylineo); 
+					printf("Error character %s at line %d", yytext, yylineno); 
 					return 0;
 				}
 
-
 %%
+void main(void)
+{
+	yylex();
+}
+
 int yywarp(){
 	return 1;
 }
