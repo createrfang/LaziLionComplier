@@ -11,7 +11,7 @@ numi        [1-9]+[0-9]*|0
 numf 		{numi}\.[0-9]+
 
 num			{numi}|{numf}
-string		\"({letter}|{digit}|[ ])*\"
+string		\".*\"
 character	\'.\'
 name		{letter}([0-9]|{letter}|_)*
 
@@ -93,7 +93,7 @@ volatile		{return VOLATILE;}
 [~]				{return NOT;}
 [&]				{return AND;}
 [|]				{return OR;}
-[\^]				{return XOR;}
+[\^]			{return XOR;}
 [<][<]			{return LSHFT;}
 [>][>]			{return RSHFT;}
 
@@ -116,15 +116,13 @@ volatile		{return VOLATILE;}
 {comment}		{/* do nothing */}
 {note}			{/* do nothing */}
 
-.				{ 
-					printf("Error character %s at line %d", yytext, yylineno); 
-					return 0;
-				}
+.				{return yytext[0];}
 
 %%
 void main(void)
 {
 	yylex();
+	printf("\n");
 }
 
 int yywarp(){
