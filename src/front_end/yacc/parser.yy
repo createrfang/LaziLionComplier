@@ -1,6 +1,7 @@
 %{
 #include <string.h>
 #include <string>
+#include <stdio.h>
 #include "../ast.h"
 int yylex();
 void yyerror(const char *s);
@@ -81,6 +82,13 @@ exp_element: num { $$ = new AstExpElement($1); }
            | LPAREN exp RPAREN { $$ = new AstExpElement($2); }
 num: NUM { $$ = new AstNum($1); }
 %%
+int main(){
+	if(!yyparse())
+		printf("\nParsing complete\n");
+	else
+		printf("\nParsing failed\n");
+}
+
 
 void yyerror(const char *s){
     
