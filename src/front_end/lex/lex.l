@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "token.h"
+#include "../yacc/parser.tab.hh"
 %}
+
+%option noyywrap
 
 digit		[0-9]
 letter		[a-zA-Z]
@@ -61,10 +63,10 @@ typedef			{return TYPEDEF;}
 volatile		{return VOLATILE;}
 
  /* BASIC TYPE */
-{num}			{return NUM;}
+{num}			{sscanf(yytext, "%d", &yylval.intVal); return NUM;}
 {string}		{return STRING;}
 {character}		{return CHARACTER;}
-{name}			{return NAME;}
+{name}			{yylval.stringVal = yytext;  return NAME;}
 
  /* Arithmetic Operators */
 [=]				{return ASSIGN;}
@@ -119,12 +121,4 @@ volatile		{return VOLATILE;}
 .				{return yytext[0];}
 
 %%
-void main(void)
-{
-	yylex();
-	printf("\n");
-}
 
-int yywarp(){
-	return 1;
-}

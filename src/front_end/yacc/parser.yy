@@ -3,7 +3,7 @@
 #include <string>
 #include "../ast.h"
 int yylex();
-void yyerror(char *s);
+void yyerror(const char *s);
 
 %}
 
@@ -84,7 +84,4 @@ num: NUM { $$ = new AstNum($1); }
 
 void yyerror(const char *s){
     
-}
-int yylex(){
-    return 0;
 }
