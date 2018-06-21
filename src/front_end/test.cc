@@ -4,14 +4,15 @@ int main(){
     b = 20;
     a = b;
     int c;
-    if (a == b){
+    if (a+b == c){
         c = 1;
     }
     else {
 
     }
-    while (a != b){
 
+    while (1){
+        c = 2;
     }
 }
 

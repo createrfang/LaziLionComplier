@@ -37,7 +37,7 @@ void yyerror(const char *s);
 %token <stringVal> STRING NAME
 
 %%
-function_def: data_type name LPAREN RPAREN compound_stmt { printf("FuncDef\n"); root = new AstFuncDef($1, $2, $5); }
+function_def: data_type name LPAREN RPAREN compound_stmt { printf("FuncDef\n"); astRoot = new AstFuncDef($1, $2, $5); }
 stmt_list: stmt { $$ = new AstStmtList($1); }
          | stmt_list stmt { $$ = new AstStmtList($2, $1); }
          | {printf("empty stmt_list\n");$$ = NULL;}

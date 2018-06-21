@@ -2,119 +2,79 @@
 
 ////////////////////////////////////////
 // Methods that show ast tree
-AstClass *root;
+AstClass *astRoot;
 
-void AstFuncDef::display(int offset) {
-    printFormat(offset);
-    printf("FuncDef\n");
-    printFormat(offset);
-    printf("DataType: %d\n", (int) dataType);
-
-    offset += formatSpaceStep;
-    displayNode(name, offset)
-    displayNode(body, offset);
+void AstFuncDef::display() {
+    print("FuncDef returnType:" + tokenMap[dataType]);
+    printSon(name);
+    printLastSon(body);
 }
 
-void AstStmtList::display(int offset) {
-    printFormat(offset);
-    printf("StmtList\n");
-
-    offset += formatSpaceStep;
-    displayNode(stmtList, offset)
-    displayNode(stmt, offset);
+void AstStmtList::display() {
+    print("StmtList");
+    printSon(stmtList);
+    printLastSon(stmt);
 }
 
-void AstIfElse::display(int offset) {
-    printFormat(offset);
-    printf("IfElse\n");
-
-    offset += formatSpaceStep;
-    displayNode(cond, offset);
-    displayNode(trueStmt, offset);
-    displayNode(falseStmt, offset);
+void AstIfElse::display() {
+    print("IfElse");
+    printSon(cond);
+    printSon(trueStmt);
+    printLastSon(falseStmt);
 }
 
-void AstForStmt::display(int offset) {
-    printFormat(offset);
-    printf("For\n");
-
-    offset += formatSpaceStep;
-    displayNode(initStmt, offset);
-    displayNode(exitCond, offset);
-    displayNode(nextStmt, offset);
-    displayNode(iter, offset);
+void AstForStmt::display() {
+    print("For");
+    printSon(initStmt);
+    printSon(exitCond);
+    printSon(nextStmt);
+    printLastSon(iter);
 }
 
-void AstAssignStmt::display(int offset) {
-    printFormat(offset);
-    printf("Assign\n");
-
-    offset += formatSpaceStep;
-    displayNode(lhs, offset);
-    displayNode(rhs, offset);
+void AstAssignStmt::display() {
+    print("Assign");
+    printSon(lhs);
+    printLastSon(rhs);
 }
 
-void AstVarDef::display(int offset) {
-    printFormat(offset);
-    printf("VarDef\n");
-    printFormat(offset);
-    printf("dataType: %d\n", (int) dataType);
-
-    offset += formatSpaceStep;
-    displayNode(name, offset);
+void AstVarDef::display() {
+    print("VarDef: dataType:" + tokenMap[dataType]);
+    printLastSon(name);
 }
 
-void AstName::display(int offset) {
-    printFormat(offset);
-    printf("Name: %s\n", name.c_str());
+void AstName::display() {
+    print("Name:" + name);
 }
 
-void AstExp::display(int offset) {
-    printFormat(offset);
-    printf("Exp\n");
-
-    offset += formatSpaceStep;
-    displayNode(exp, offset);
+void AstExp::display() {
+    print("Exp");
+    printLastSon(exp);
 }
 
-void AstUnaExp::display(int offset) {
-    printFormat(offset);
-    printf("UnaryExp\n");
-
-    offset += formatSpaceStep;
-    displayNode(exp, offset);
+void AstUnaExp::display() {
+    print("UnaryExp");
+    printLastSon(exp);
 }
 
-void AstBinExp::display(int offset) {
-    printFormat(offset);
-    printf("BinaryExp\n");
-    printFormat(offset);
-    printf("Operator: %d\n", (int) op);
-
-    offset += formatSpaceStep;
-    displayNode(lfac, offset);
-    displayNode(rfac, offset);
+void AstBinExp::display() {
+    print("BinaryExp Operator:" + tokenMap[op]);
+    printSon(lfac);
+    printLastSon(rfac);
 }
 
-void AstExpElement::display(int offset) {
-    printFormat(offset);
-    printf("ExpElement\n");
-
-    offset += formatSpaceStep;
-    displayNode(ele, offset);
+void AstExpElement::display() {
+    print("ExpElement");
+    printLastSon(ele);
 }
 
-void AstNum::display(int offset) {
-    printFormat(offset);
-    printf("Num: %d\n", num);
+void AstNum::display() {
+    print("Num:" + std::to_string(num));
 }
 
-void AstWhileStmt::display(int offset) {
-    printFormat(offset);
-    printf("While\n");
-    offset += formatSpaceStep;
-    displayNode(testCond, offset);
-    displayNode(iter, offset);
+void AstWhileStmt::display() {
+    print("While");
+    printSon(testCond);
+    printLastSon(iter);
 }
 
 ////////////////////////////////////////
@@ -122,26 +82,47 @@ void AstWhileStmt::display(int offset) {
 
 Ir *AstFuncDef::translateToIr() {
     // TODO: add function scope
-    return body->translateToIr();
+    return body ? body->translateToIr() : NULL;
 }
 
 Ir *AstStmtList::translateToIr() {
-    if (stmtList) {
-        return new IrSeq(stmtList->translateToIr(),
-                         stmt->translateToIr());
+    Ir *s1 = NULL, *s2 = NULL;
+    if (stmtList) s1 = stmtList->translateToIr();
+    if (stmt) s2 = stmt->translateToIr();
+    if (s1 && s2) {
+        return new IrSeq(s1, s2);
     }
-    return stmt->translateToIr();
+    if (!s1) s1 = s2;
+    return s1 ? s1 : NULL;
 }
 
 Ir *AstIfElse::translateToIr() {
     Ir *trueLabel = new IrLabel(newLabel());
     Ir *falseLabel = new IrLabel(newLabel());
-    Ir *trueTree = new IrSeq(trueLabel, trueStmt->translateToIr());
-    Ir *falseTree = new IrSeq(falseLabel, falseStmt->translateToIr());
+    Ir *trueTree = trueStmt
+                   ? new IrSeq(trueLabel, trueStmt->translateToIr())
+                   : trueLabel;
+    Ir *falseTree = falseStmt
+                    ? new IrSeq(falseLabel, falseStmt->translateToIr())
+                    : falseLabel;
     Ir *irCond = cond->translateToIr();
+    // Actually, trueTree and falseTree must be non-null.
+    // Below is just for safe.
+    if (!trueTree && !falseTree) {
+        // if (cond) do nothing else do nothing
+        // do cond only
+        // Actually, here is unreachable.
+        return irCond;
+    }
+    yytokentype op = trueTree ? NEQ : EQ;
+    if (!trueTree) {
+        // if (cond) do nothing else false tree
+        std::swap(trueTree, falseTree);
+    }
+
     // TODO: use shortcut introduced in the book
     return new IrSeq(
-            new IrCjump(NEQ, irCond, IrZero, trueLabel, falseLabel),
+            new IrCjump(op, irCond, IrFalse, trueLabel, falseLabel),
             new IrSeq(trueTree, falseTree)
     );
 }
@@ -152,21 +133,36 @@ Ir *AstForStmt::translateToIr() {
 }
 
 Ir *AstAssignStmt::translateToIr() {
-    Ir *l = lhs->translateToIr();
-    if (l->type == IrMem) {
-        Ir *tmp = newIrTemp();
-        return IrMove(tmp, rhs->translateToIr());
+    if (!lhs || !rhs) {
+        // TODO: handle error
+        printf("Invalid AstAssignStmt\n");
+        return new IrEseq(NULL, IrZero);
     }
-    if (l->type == IrTemp) {
-        return
+    Ir *l = lhs->translateToIr();
+    Ir *r = rhs->translateToIr();
+    if (l->type == irMem) {
+        // if lhs is memory, it should be stored
+        // to temp and then return the temp
+        Ir *tmp = new IrTemp(newLabel());
+        return new IrEseq(
+                new IrSeq(
+                        new IrMove(tmp, r),
+                        new IrMove(l, tmp)
+                ),
+                tmp);
+    }
+    if (l->type == irTemp) {
+        // if lhs is temp, return it directly
+        return new IrEseq(new IrMove(l, r), l);
     }
     // TODO: handle error
     printf("Value cannot be on left side\n");
-    return IrEseq(NULL, CONST(0));
+    return new IrEseq(NULL, IrZero);
 }
 
 Ir *AstVarDef::translateToIr() {
     // TODO: add var in table
+    // TODO: support initialization when defining
     return NULL;
 }
 
@@ -176,25 +172,45 @@ Ir *AstName::translateToIr() {
 }
 
 Ir *AstExp::translateToIr() {
-    return exp->translateToIr();
+    return exp ? exp->translateToIr() : NULL;
 }
 
 Ir *AstUnaExp::translateToIr() {
-    return exp->translateToIr();
+    return exp ? exp->translateToIr() : NULL;
 }
 
 Ir *AstBinExp::translateToIr() {
-    return IrBinOp(op, lfac->translateToIr(), rfac->translateToIr());
+    return new IrBinOp(op,
+                       lfac ? lfac->translateToIr() : NULL,
+                       rfac ? rfac->translateToIr() : NULL
+    );
 }
 
 Ir *AstExpElement::translateToIr() {
-    return ele->translateToIr();
+    return ele ? ele->translateToIr() : NULL;
 }
 
 Ir *AstNum::translateToIr() {
-    return IrConst(num);
+    return new IrConst(num);
 }
 
 Ir *AstWhileStmt::translateToIr() {
-    return NULL;
+    Ir *testLabel = new IrLabel(newLabel());
+    Ir *doneLabel = new IrLabel(newLabel());
+    return new IrSeq(
+            new IrSeq(
+                    testLabel,
+                    new IrCjump(
+                            NEQ,
+                            testCond->translateToIr(),
+                            IrFalse,
+                            NULL,
+                            doneLabel)
+            ),
+            iter ? new IrSeq(
+                    iter->translateToIr(),
+                    doneLabel)
+                 : doneLabel
+    );
 }
+
