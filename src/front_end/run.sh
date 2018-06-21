@@ -1,0 +1,1 @@
+./visualize.out < test.cc

@@ -21,8 +21,14 @@ blank 		[\t\n\x0B\f\r\x20]+
 comment 	\/\*(.*\n)*.*\*\/
 note 		\/\/.*
 
-
 %%
+[(]             {printf("("); return LPAREN;}
+[)]             {printf(")"); return RPAREN;}
+[{]             {printf("{"); return LCURLYBRACKET;}
+[}]             {printf("}"); return RCURLYBRACKET;}
+[;]             {printf("semicolon\n"); return SEMICOLON;}
+<<EOF>>         {printf("EOF\n"); return EOF;}
+
  /* TYPE DEFINATION */
 char       		{return CHAR;}
 double 			{return DOUBLE;}
@@ -66,10 +72,10 @@ volatile		{return VOLATILE;}
 {num}			{sscanf(yytext, "%d", &yylval.intVal); return NUM;}
 {string}		{return STRING;}
 {character}		{return CHARACTER;}
-{name}			{yylval.stringVal = yytext;  return NAME;}
+{name}			{printf("%s\n", yytext); yylval.stringVal = yytext; printf("%d\n", NAME); return NAME;}
 
  /* Arithmetic Operators */
-[=]				{return ASSIGN;}
+[=]				{printf("="); return ASSIGN;}
 [*]				{return MUL;}
 [/]				{return DIV;}
 [+]				{return PLUS;}
