@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <map>
 #include "ast.h"
 #include "yacc/parser.tab.hh"
 
@@ -6,11 +7,20 @@ int main() {
     if (yyparse()) {
         goto parseFailed;
     }
-    if (root) {
-        printf("root\n");
-        root->display(0);
+    if (astRoot) {
+        printf("ast root\n");
+        astRoot->init();
+        astRoot->display();
+        Ir *irRoot = astRoot->translateToIr();
+        if (irRoot) {
+            printf("ir root\n");
+            irRoot->init();
+            irRoot->display();
+        } else {
+            printf("ir root null\n");
+        }
     } else {
-        printf("null\n");
+        printf("ast root null\n");
     }
 
     return 0;

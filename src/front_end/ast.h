@@ -3,14 +3,10 @@
 
 #include <stdio.h>
 #include <string>
+#include <algorithm>
 #include "yacc/parser.tab.hh"
-
-const int formatSpaceStep = 3;
-
-#define rep(x) for (int i = 0; i < (x); ++i)
-#define printSpace(offset) rep(offset)printf(" ");
-#define printFormat(offset) printSpace(offset)printf("|--");
-#define displayNode(x, off) if (x) x->display(off); else {printFormat(off); printf("NULL\n");}
+#include "format.h"
+#include "irtree.h"
 
 struct AstClass;
 struct AstFuncDef;
@@ -47,7 +43,7 @@ enum AstClassType {
     ctWhileStmt = 14,
 };
 
-struct AstClass {
+struct AstClass : public TreePrinter{
     AstClassType type;
 
     AstClass(AstClassType a) : type(a) {
@@ -58,18 +54,20 @@ struct AstClass {
         printf("Create Node %d\n", (int) type);
     }
 
-    virtual void display(int offset) {}
+    virtual Ir *translateToIr() = 0;
 };
 
 struct AstFuncDef : public AstClass {
     yytokentype dataType;
     AstClass *name;
-    AstClass *compoundStmt;
+    AstClass *body;
 
-    AstFuncDef(yytokentype a1, AstClass *a2, AstClass *a3) : dataType(a1), name(a2), compoundStmt(a3),
+    AstFuncDef(yytokentype a1, AstClass *a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
                                                              AstClass(ctFuncDef) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstStmtList : public AstClass {
@@ -78,7 +76,9 @@ struct AstStmtList : public AstClass {
 
     AstStmtList(AstClass *a1, AstClass *a2 = NULL) : stmtList(a2), stmt(a1), AstClass(ctStmtList) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstIfElse : public AstClass {
@@ -89,7 +89,9 @@ struct AstIfElse : public AstClass {
     AstIfElse(AstClass *a1, AstClass *a2, AstClass *a3 = NULL) : cond(a1), trueStmt(a2), falseStmt(a3),
                                                                  AstClass(ctIfElse) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstForStmt : public AstClass {
@@ -101,7 +103,9 @@ struct AstForStmt : public AstClass {
     AstForStmt(AstClass *a1, AstClass *a2, AstClass *a3, AstClass *a4) : initStmt(a1), exitCond(a2), nextStmt(a3),
                                                                          iter(a4), AstClass(ctForStmt) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstAssignStmt : public AstClass {
@@ -110,7 +114,9 @@ struct AstAssignStmt : public AstClass {
 
     AstAssignStmt(AstClass *a1, AstClass *a2) : lhs(a1), rhs(a2), AstClass(ctAssignStmt) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstVarDef : public AstClass {
@@ -119,7 +125,9 @@ struct AstVarDef : public AstClass {
 
     AstVarDef(yytokentype a1, AstClass *a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstName : public AstClass {
@@ -127,7 +135,9 @@ struct AstName : public AstClass {
 
     AstName(std::string s) : name(s), AstClass(ctName) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstExp : public AstClass {
@@ -135,7 +145,9 @@ struct AstExp : public AstClass {
 
     AstExp(AstClass *a) : exp(a), AstClass(ctExp) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstUnaExp : public AstClass {
@@ -143,7 +155,9 @@ struct AstUnaExp : public AstClass {
 
     AstUnaExp(AstClass *a) : exp(a), AstClass(ctUnaExp) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstBinExp : public AstClass {
@@ -153,7 +167,9 @@ struct AstBinExp : public AstClass {
 
     AstBinExp(AstClass *a1, yytokentype a2, AstClass *a3) : lfac(a1), op(a2), rfac(a3), AstClass(ctBinExp) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstExpElement : public AstClass {
@@ -161,7 +177,9 @@ struct AstExpElement : public AstClass {
 
     AstExpElement(AstClass *a) : ele(a), AstClass(ctExpElement) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstNum : public AstClass {
@@ -169,7 +187,9 @@ struct AstNum : public AstClass {
 
     AstNum(int a) : num(a), AstClass(ctNum) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
 struct AstWhileStmt : public AstClass {
@@ -178,9 +198,11 @@ struct AstWhileStmt : public AstClass {
 
     AstWhileStmt(AstClass *a1, AstClass *a2) : AstClass(ctWhileStmt), testCond(a1), iter(a2) {}
 
-    void display(int offset);
+    void display();
+
+    Ir *translateToIr();
 };
 
-extern AstClass *root;
+extern AstClass *astRoot;
 
 #endif
