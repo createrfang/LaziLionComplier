@@ -1,12 +1,14 @@
-#ifndef __AST_H__
-#define __AST_H__
+#ifndef LAZILIONCOMPLIER_AST_H
+#define LAZILIONCOMPLIER_AST_H
 
 #include <stdio.h>
 #include <string>
 #include <algorithm>
+#include <map>
 #include "yacc/parser.tab.hh"
 #include "format.h"
 #include "irtree.h"
+#include "environment.h"
 
 struct AstClass;
 struct AstFuncDef;
@@ -43,7 +45,7 @@ enum AstClassType {
     ctWhileStmt = 14,
 };
 
-struct AstClass : public TreePrinter{
+struct AstClass : public TreePrinter {
     AstClassType type;
 
     AstClass(AstClassType a) : type(a) {
@@ -59,10 +61,10 @@ struct AstClass : public TreePrinter{
 
 struct AstFuncDef : public AstClass {
     yytokentype dataType;
-    AstClass *name;
+    std::string name;
     AstClass *body;
 
-    AstFuncDef(yytokentype a1, AstClass *a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
+    AstFuncDef(yytokentype a1, std::string a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
                                                              AstClass(ctFuncDef) {}
 
     void display();
@@ -121,9 +123,9 @@ struct AstAssignStmt : public AstClass {
 
 struct AstVarDef : public AstClass {
     yytokentype dataType;
-    AstClass *name;
+    std::string name;
 
-    AstVarDef(yytokentype a1, AstClass *a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
+    AstVarDef(yytokentype a1, const std::string &a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
 
     void display();
 
@@ -197,6 +199,16 @@ struct AstWhileStmt : public AstClass {
     AstClass *iter;
 
     AstWhileStmt(AstClass *a1, AstClass *a2) : AstClass(ctWhileStmt), testCond(a1), iter(a2) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstCompoundStmt : public AstClass {
+    AstClass *stmtList;
+
+    AstCompoundStmt(AstClass *stmtList) : stmtList(stmtList), AstClass(ctCompoundStmt) {}
 
     void display();
 

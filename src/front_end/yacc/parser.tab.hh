@@ -133,8 +133,9 @@ union YYSTYPE
     int intVal;
     char *stringVal;
     struct AstClass *node;
+    struct AstName *nameNode;
 
-#line 138 "parser.tab.hh" /* yacc.c:1909  */
+#line 139 "parser.tab.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

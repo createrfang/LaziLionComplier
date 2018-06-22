@@ -13,6 +13,7 @@ void yyerror(const char *s);
     int intVal;
     char *stringVal;
     struct AstClass *node;
+    struct AstName *nameNode;
 };
 
 %token <token> LCURLYBRACKET RCURLYBRACKET LPAREN RPAREN SEMICOLON
@@ -31,13 +32,14 @@ void yyerror(const char *s);
 %type <node> stmt_list stmt compound_stmt if_else
 %type <node> while_stmt assign_stmt var_def exp
 %type <node> logical_or_exp logical_and_exp relation_exp
-%type <node> add_exp mul_exp exp_element num function_def name
+%type <node> add_exp mul_exp exp_element num function_def
 %type <token> relation_op add_op mul_op data_type
+%type <nameNode> name
 
 %token <stringVal> STRING NAME
 
 %%
-function_def: data_type name LPAREN RPAREN compound_stmt { printf("FuncDef\n"); astRoot = new AstFuncDef($1, $2, $5); }
+function_def: data_type NAME LPAREN RPAREN compound_stmt { printf("FuncDef\n"); astRoot = new AstFuncDef($1, $2, $5); }
 stmt_list: stmt { $$ = new AstStmtList($1); }
          | stmt_list stmt { $$ = new AstStmtList($2, $1); }
          | {printf("empty stmt_list\n");$$ = NULL;}
@@ -57,7 +59,7 @@ while_stmt: WHILE LPAREN exp RPAREN stmt { $$ = new AstWhileStmt($3, $5); }
 ;
 assign_stmt: name ASSIGN exp { $$ = new AstAssignStmt($1, $3); }
 ;
-var_def: data_type name { printf("varDef %d %d\n", $1, $2->type); $$ = new AstVarDef($1, $2); }
+var_def: data_type NAME { printf("varDef %d %s\n", $1, $2); $$ = new AstVarDef($1, $2); }
 ;
 data_type: INT { printf("int\n"); $$ = INT; printf("int\n");}
          | LONG { $$ = LONG; }

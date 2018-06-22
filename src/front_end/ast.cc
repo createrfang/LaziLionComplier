@@ -5,8 +5,7 @@
 AstClass *astRoot;
 
 void AstFuncDef::display() {
-    print("FuncDef returnType:" + tokenMap[dataType]);
-    printSon(name);
+    print("FuncDef returnType:" + tokenMap[dataType] + " name: " + name);
     printLastSon(body);
 }
 
@@ -38,8 +37,7 @@ void AstAssignStmt::display() {
 }
 
 void AstVarDef::display() {
-    print("VarDef: dataType:" + tokenMap[dataType]);
-    printLastSon(name);
+    print("VarDef: dataType:" + tokenMap[dataType] + " name: "+ name);
 }
 
 void AstName::display() {
@@ -75,6 +73,11 @@ void AstWhileStmt::display() {
     print("While");
     printSon(testCond);
     printLastSon(iter);
+}
+
+void AstCompoundStmt::display() {
+    print("Compound");
+    printLastSon(stmtList);
 }
 
 ////////////////////////////////////////
@@ -161,13 +164,19 @@ Ir *AstAssignStmt::translateToIr() {
 }
 
 Ir *AstVarDef::translateToIr() {
-    // TODO: add var in table
+    // TODO(DONE): add var in table
+    Environment::addSymbol(new Symbol(name, dataType));
     // TODO: support initialization when defining
     return NULL;
 }
 
 Ir *AstName::translateToIr() {
-    // TODO: check name in table
+    // TODO(DONE): check name in table
+    const Symbol *s = Environment::getSymbol(name);
+    // TODO: Error handling
+    if (s == NULL) {
+        printf("Error: Cannot find variable %s\n", name.c_str());
+    }
     return new IrTemp(name);
 }
 
@@ -214,3 +223,9 @@ Ir *AstWhileStmt::translateToIr() {
     );
 }
 
+Ir *AstCompoundStmt::translateToIr() {
+    Environment::newScope(this);
+    Ir *res = stmtList ? stmtList->translateToIr() : NULL;
+    Environment::deleteScope(this);
+    return res;
+}
