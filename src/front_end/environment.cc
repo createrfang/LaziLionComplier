@@ -6,7 +6,7 @@ std::vector<AstClass *> Environment::scopeStack;
 void Environment::addSymbol(Symbol *s) {
     auto it = env.find(s->name);
     s->scope = getTopScope();
-    if (it != env.end()) s->externValue = it->second;
+    s->externValue = it != env.end() ? it->second : NULL;
     env[s->name] = s;
 }
 
@@ -23,7 +23,7 @@ void Environment::deleteScope(AstClass *scope) {
         scopeStack.pop_back();
     }
     for (auto it = env.begin(); it != env.end(); ++it) {
-        if (it->second->scope == scope) {
+        if (it->second && it->second->scope == scope) {
             it->second = it->second->externValue;
         }
     }

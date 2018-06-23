@@ -50,7 +50,7 @@ stmt: assign_stmt SEMICOLON { $$ = $1; }
     | var_def SEMICOLON { $$ = $1; }
     | compound_stmt { $$ = $1; }
     ;
-compound_stmt: LCURLYBRACKET stmt_list RCURLYBRACKET { $$ = $2; }
+compound_stmt: LCURLYBRACKET stmt_list RCURLYBRACKET { $$ = new AstCompoundStmt($2); }
     ;
 if_else: IF LPAREN exp RPAREN stmt { $$ = new AstIfElse($3, $5); }
        | IF LPAREN exp RPAREN stmt ELSE stmt { $$ = new AstIfElse($3, $5, $7); }

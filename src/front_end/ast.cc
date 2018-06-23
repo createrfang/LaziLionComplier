@@ -76,7 +76,7 @@ void AstWhileStmt::display() {
 }
 
 void AstCompoundStmt::display() {
-    print("Compound");
+    print("CompoundStmt");
     printLastSon(stmtList);
 }
 
