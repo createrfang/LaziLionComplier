@@ -5,7 +5,7 @@
 AstClass *astRoot;
 
 void AstFuncDef::display() {
-    print("FuncDef returnType:" + tokenMap[dataType] + " name: " + name);
+    print("FuncDef returnType:" + tokenMap[dataType] + " name: " + (name ? name->name : "NULL"));
     printLastSon(body);
 }
 
@@ -37,7 +37,7 @@ void AstAssignStmt::display() {
 }
 
 void AstVarDef::display() {
-    print("VarDef: dataType:" + tokenMap[dataType] + " name: "+ name);
+    print("VarDef: dataType:" + tokenMap[dataType] + " name: " + (name ? name->name: "NULL"));
 }
 
 void AstName::display() {
@@ -165,7 +165,7 @@ Ir *AstAssignStmt::translateToIr() {
 
 Ir *AstVarDef::translateToIr() {
     // TODO(DONE): add var in table
-    Environment::addSymbol(new Symbol(name, dataType));
+    Environment::addSymbol(new Symbol(name->name, dataType));
     // TODO: support initialization when defining
     return NULL;
 }

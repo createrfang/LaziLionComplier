@@ -61,11 +61,11 @@ struct AstClass : public TreePrinter {
 
 struct AstFuncDef : public AstClass {
     yytokentype dataType;
-    std::string name;
+    AstName *name;
     AstClass *body;
 
-    AstFuncDef(yytokentype a1, std::string a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
-                                                             AstClass(ctFuncDef) {}
+    AstFuncDef(yytokentype a1, AstName* a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
+                                                             AstClass(ctFuncDef) { }
 
     void display();
 
@@ -123,9 +123,9 @@ struct AstAssignStmt : public AstClass {
 
 struct AstVarDef : public AstClass {
     yytokentype dataType;
-    std::string name;
+    AstName *name;
 
-    AstVarDef(yytokentype a1, const std::string &a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
+    AstVarDef(yytokentype a1, AstName *a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
 
     void display();
 

@@ -39,7 +39,7 @@ void yyerror(const char *s);
 %token <stringVal> STRING NAME
 
 %%
-function_def: data_type NAME LPAREN RPAREN compound_stmt { printf("FuncDef\n"); astRoot = new AstFuncDef($1, $2, $5); }
+function_def: data_type name LPAREN RPAREN compound_stmt { astRoot = new AstFuncDef($1, $2, $5); }
 stmt_list: stmt { $$ = new AstStmtList($1); }
          | stmt_list stmt { $$ = new AstStmtList($2, $1); }
          | {printf("empty stmt_list\n");$$ = NULL;}
@@ -59,7 +59,7 @@ while_stmt: WHILE LPAREN exp RPAREN stmt { $$ = new AstWhileStmt($3, $5); }
 ;
 assign_stmt: name ASSIGN exp { $$ = new AstAssignStmt($1, $3); }
 ;
-var_def: data_type NAME { printf("varDef %d %s\n", $1, $2); $$ = new AstVarDef($1, $2); }
+var_def: data_type name { $$ = new AstVarDef($1, $2); }
 ;
 data_type: INT { printf("int\n"); $$ = INT; printf("int\n");}
          | LONG { $$ = LONG; }
