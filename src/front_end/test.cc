@@ -1,3 +1,10 @@
+int f(){
+    int a;
+    int c;
+    c = a + 10;
+    return 10;
+}
+
 int main() {
     int a;
     int b;
@@ -16,8 +23,9 @@ int main() {
         int k;
     }
     b = k;
-    while (1) {
+    while (c != 2) {
         c = 2;
     }
+    return 0;
 }
 

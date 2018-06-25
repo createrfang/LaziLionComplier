@@ -37,7 +37,7 @@ void AstAssignStmt::display() {
 }
 
 void AstVarDef::display() {
-    print("VarDef: dataType:" + tokenMap[dataType] + " name: " + (name ? name->name: "NULL"));
+    print("VarDef: dataType:" + tokenMap[dataType] + " name: " + (name ? name->name : "NULL"));
 }
 
 void AstName::display() {
@@ -80,12 +80,20 @@ void AstCompoundStmt::display() {
     printLastSon(stmtList);
 }
 
+void AstFuncList::display(){
+    print("FuncList");
+    printSon(funcList);
+    printLastSon(funcDef);
+}
+
 ////////////////////////////////////////
 // Methods that translate Ast to Ir
 
 Ir *AstFuncDef::translateToIr() {
     // TODO: add function scope
-    return body ? body->translateToIr() : NULL;
+    Ir *funcLabel = new IrLabel(newLabel());
+    Ir *funcBody = body ? body->translateToIr() : NULL;
+    return new IrSeq(funcLabel, funcBody);
 }
 
 Ir *AstStmtList::translateToIr() {
@@ -189,10 +197,18 @@ Ir *AstUnaExp::translateToIr() {
 }
 
 Ir *AstBinExp::translateToIr() {
-    return new IrBinOp(op,
-                       lfac ? lfac->translateToIr() : NULL,
-                       rfac ? rfac->translateToIr() : NULL
-    );
+    Ir *l = lfac ? lfac->translateToIr() : NULL;
+    Ir *r = rfac ? rfac->translateToIr() : NULL;
+    Ir *res = new IrBinOp(op, l, r);
+//    if (l && l->type == irTemp && r && r->type == irTemp) {
+//        Symbol *ls = Environment::getSymbol(l->name);
+//        Symbol *rs = Environment::getSymbol(r->name);
+//        if (ls && rs && ls->type != rs->type) {
+//            // TODO: Handle Error
+//            printf("%s and %s are not the same type\n", l->name.c_str(), r->name.c_str());
+//        }
+//    }
+    return res;
 }
 
 Ir *AstExpElement::translateToIr() {
@@ -228,4 +244,14 @@ Ir *AstCompoundStmt::translateToIr() {
     Ir *res = stmtList ? stmtList->translateToIr() : NULL;
     Environment::deleteScope(this);
     return res;
+}
+
+Ir *AstFuncList::translateToIr() {
+    Ir *s1 = funcList ? funcList->translateToIr() : NULL;
+    Ir *s2 = funcDef ? funcDef->translateToIr() : NULL;
+    if (s1 && s2) {
+        return new IrSeq(s1, s2);
+    }
+    if (!s1) s1 = s2;
+    return new IrSeq(s1, s2);
 }

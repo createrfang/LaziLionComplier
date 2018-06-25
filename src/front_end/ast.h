@@ -43,6 +43,7 @@ enum AstClassType {
     ctExpElement = 12,
     ctNum = 13,
     ctWhileStmt = 14,
+    ctFuncList = 15,
 };
 
 struct AstClass : public TreePrinter {
@@ -64,8 +65,8 @@ struct AstFuncDef : public AstClass {
     AstName *name;
     AstClass *body;
 
-    AstFuncDef(yytokentype a1, AstName* a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
-                                                             AstClass(ctFuncDef) { }
+    AstFuncDef(yytokentype a1, AstName *a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
+                                                            AstClass(ctFuncDef) {}
 
     void display();
 
@@ -209,6 +210,18 @@ struct AstCompoundStmt : public AstClass {
     AstClass *stmtList;
 
     AstCompoundStmt(AstClass *stmtList) : stmtList(stmtList), AstClass(ctCompoundStmt) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstFuncList : public AstClass {
+    AstClass *funcList;
+    AstClass *funcDef;
+
+    AstFuncList(AstClass *funcDef, AstClass *funcList = NULL) : funcList(funcList), funcDef(funcDef),
+                                                                AstClass(ctFuncList) {}
 
     void display();
 
