@@ -1,4 +1,4 @@
-int f(){
+int f(int b, int d) {
     int a;
     int c;
     c = a + 10;
@@ -26,6 +26,8 @@ int main() {
     while (c != 2) {
         c = 2;
     }
+    int q;
+    q = f(a + b, 20);
     return 0;
 }
 

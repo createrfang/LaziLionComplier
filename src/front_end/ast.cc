@@ -6,6 +6,7 @@ AstClass *astRoot;
 
 void AstFuncDef::display() {
     print("FuncDef returnType:" + tokenMap[dataType] + " name: " + (name ? name->name : "NULL"));
+    printSon(varDefList);
     printLastSon(body);
 }
 
@@ -80,19 +81,41 @@ void AstCompoundStmt::display() {
     printLastSon(stmtList);
 }
 
-void AstFuncList::display(){
+void AstFuncList::display() {
     print("FuncList");
     printSon(funcList);
     printLastSon(funcDef);
+}
+
+void AstVarDefList::display() {
+    print("VarDefList");
+    printSon(list);
+    printLastSon(varDef);
+}
+
+void AstExpList::display() {
+    print("ExpList");
+    printSon(list);
+    printLastSon(exp);
+}
+
+void AstFunctionCall::display() {
+    print("FunctionCall, Name:" + name->name);
+    printLastSon(expList);
 }
 
 ////////////////////////////////////////
 // Methods that translate Ast to Ir
 
 Ir *AstFuncDef::translateToIr() {
-    // TODO: add function scope
-    Ir *funcLabel = new IrLabel(newLabel());
+    // TODO: add function check
+    Environment::newScope(this);
+    // add arguments to table only
+    if (varDefList) varDefList->translateToIr();
+
+    Ir *funcLabel = new IrLabel("function-" + newLabel());
     Ir *funcBody = body ? body->translateToIr() : NULL;
+    Environment::deleteScope(this);
     return new IrSeq(funcLabel, funcBody);
 }
 
@@ -134,7 +157,7 @@ Ir *AstIfElse::translateToIr() {
     // TODO: use shortcut introduced in the book
     return new IrSeq(
             new IrCjump(op, irCond, IrFalse, trueLabel, falseLabel),
-            new IrSeq(trueTree, falseTree)
+            new IrSeq(falseTree, trueTree)
     );
 }
 
@@ -226,11 +249,11 @@ Ir *AstWhileStmt::translateToIr() {
             new IrSeq(
                     testLabel,
                     new IrCjump(
-                            NEQ,
+                            EQ,
                             testCond->translateToIr(),
                             IrFalse,
-                            NULL,
-                            doneLabel)
+                            doneLabel,
+                            NULL)
             ),
             iter ? new IrSeq(
                     iter->translateToIr(),
@@ -240,9 +263,7 @@ Ir *AstWhileStmt::translateToIr() {
 }
 
 Ir *AstCompoundStmt::translateToIr() {
-    Environment::newScope(this);
     Ir *res = stmtList ? stmtList->translateToIr() : NULL;
-    Environment::deleteScope(this);
     return res;
 }
 
@@ -254,4 +275,26 @@ Ir *AstFuncList::translateToIr() {
     }
     if (!s1) s1 = s2;
     return new IrSeq(s1, s2);
+}
+
+Ir *AstVarDefList::translateToIr() {
+    if (list) list->translateToIr();
+    if (varDef) varDef->translateToIr();
+    return NULL;
+}
+
+Ir *AstExpList::translateToIr() {
+    Ir *e1 = list ? list->translateToIr() : NULL;
+    Ir *e2 = exp ? exp->translateToIr() : NULL;
+    if (e1 && e2) {
+        return new IrEseq(e1, e2);
+    }
+    if (!e1) {
+        e1 = e2;
+    }
+    return e1 ? new IrExp(e1) : NULL;
+}
+
+Ir *AstFunctionCall::translateToIr() {
+    return new IrCall(name->name, expList->translateToIr());
 }

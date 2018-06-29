@@ -1,1 +1,1 @@
-./visualize.out < test.cc
+./visualize.out < test/test.c > test/test.ir

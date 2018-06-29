@@ -31,8 +31,8 @@ void yyerror(const char *s);
 
 %type <node> stmt_list stmt compound_stmt if_else function_list program
 %type <node> while_stmt assign_stmt var_def exp return_stmt
-%type <node> logical_or_exp logical_and_exp relation_exp
-%type <node> add_exp mul_exp exp_element num function_def
+%type <node> logical_or_exp logical_and_exp relation_exp function_call
+%type <node> add_exp mul_exp exp_element num function_def var_def_list exp_list
 %type <token> relation_op add_op mul_op data_type
 %type <nameNode> name
 
@@ -44,7 +44,8 @@ function_list: function_def { $$ = $1; }
 	     | function_list function_def { $$ = new AstFuncList($2, $1); }
 	     | { $$ = NULL; }
 	     ;
-function_def: data_type name LPAREN RPAREN compound_stmt { $$ = new AstFuncDef($1, $2, $5); }
+function_def: data_type name LPAREN var_def_list RPAREN compound_stmt { $$ = new AstFuncDef($1, $2, $4, $6); }
+function_call: name LPAREN exp_list RPAREN { $$ = new AstFunctionCall($1, $3); }
 stmt_list: stmt { $$ = new AstStmtList($1); }
          | stmt_list stmt { $$ = new AstStmtList($2, $1); }
          | {printf("empty stmt_list\n");$$ = NULL;}
@@ -55,6 +56,7 @@ stmt: assign_stmt SEMICOLON { $$ = $1; }
     | var_def SEMICOLON { $$ = $1; }
     | compound_stmt { $$ = $1; }
     | return_stmt SEMICOLON { $$ = $1; }
+    | function_call SEMICOLON { $$ = $1; }
     ;
 compound_stmt: LCURLYBRACKET stmt_list RCURLYBRACKET { $$ = new AstCompoundStmt($2); }
     ;
@@ -67,12 +69,18 @@ assign_stmt: name ASSIGN exp { $$ = new AstAssignStmt($1, $3); }
 ;
 var_def: data_type name { $$ = new AstVarDef($1, $2); }
 ;
+var_def_list: var_def { $$ = new AstVarDefList($1); }
+            | var_def_list ',' var_def { $$ = new AstVarDefList($3, $1); }
+            | {$$ = NULL;}
 data_type: INT { printf("int\n"); $$ = INT; printf("int\n");}
          | LONG { $$ = LONG; }
          | FLOAT { $$ = FLOAT; }
          ;
 exp: logical_or_exp { $$ = new AstExp($1); }
 ;
+exp_list: exp { $$ = new AstExpList($1); }
+        | exp_list ',' exp { $$ = new AstExpList($3, $1); }
+        | { $$ = NULL; }
 logical_or_exp: logical_and_exp { $$ = new AstUnaExp($1); }
               | logical_or_exp LOR logical_and_exp { $$ = new AstBinExp($3, LOR, $1); }
               ;
@@ -105,6 +113,7 @@ mul_op: MUL { $$ = MUL; }
 exp_element: num { $$ = new AstExpElement($1); }
            | name { printf("exp name\n"); $$ = new AstExpElement($1); }
            | LPAREN exp RPAREN { $$ = new AstExpElement($2); }
+           | function_call { $$ = new AstExpElement($1); }
            ;
 num: NUM { $$ = new AstNum($1); }
 ;

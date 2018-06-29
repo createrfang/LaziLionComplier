@@ -44,6 +44,9 @@ enum AstClassType {
     ctNum = 13,
     ctWhileStmt = 14,
     ctFuncList = 15,
+    ctVarDefList = 16,
+    ctExpList = 17,
+    ctFunctionCall = 18,
 };
 
 struct AstClass : public TreePrinter {
@@ -54,7 +57,7 @@ struct AstClass : public TreePrinter {
     }
 
     void printCreateInfo() {
-        printf("Create Node %d\n", (int) type);
+        //printf("Create Node %d\n", (int) type);
     }
 
     virtual Ir *translateToIr() = 0;
@@ -63,10 +66,11 @@ struct AstClass : public TreePrinter {
 struct AstFuncDef : public AstClass {
     yytokentype dataType;
     AstName *name;
+    AstClass *varDefList;
     AstClass *body;
 
-    AstFuncDef(yytokentype a1, AstName *a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
-                                                            AstClass(ctFuncDef) {}
+    AstFuncDef(yytokentype a1, AstName *a2, AstClass *a3, AstClass *a4) : dataType(a1), name(a2), varDefList(a3),
+                                                                          body(a4), AstClass(ctFuncDef) {}
 
     void display();
 
@@ -227,6 +231,39 @@ struct AstFuncList : public AstClass {
 
     Ir *translateToIr();
 };
+
+struct AstVarDefList : public AstClass {
+    AstClass *list;
+    AstClass *varDef;
+
+    AstVarDefList(AstClass *varDef, AstClass *list = NULL) : varDef(varDef), list(list), AstClass(ctVarDefList) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstExpList : public AstClass {
+    AstClass *list;
+    AstClass *exp;
+
+    AstExpList(AstClass *exp, AstClass *list = NULL) : exp(exp), list(list), AstClass(ctExpList) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstFunctionCall : public AstClass {
+    AstName *name;
+    AstClass *expList;
+
+    AstFunctionCall(AstName *name, AstClass *expList) : name(name), expList(expList), AstClass(ctFunctionCall) {}
+
+    void display();
+    Ir *translateToIr();
+};
+
 
 extern AstClass *astRoot;
 
