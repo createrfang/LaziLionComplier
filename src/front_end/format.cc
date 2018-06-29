@@ -41,7 +41,7 @@ void TreePrinter::printOver() { stack.pop_back(); }
 
 void TreePrinter::init() {
     stack.clear();
-    stack.push_back(0);
+    stack.push_back(' ');
     static int firstCall = 1;
     if (firstCall) {
         tokenMap[INT] = "INT";
