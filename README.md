@@ -13,7 +13,7 @@
 7. [ ] 执行器（后端）
 
 ## 编译环境
-<b style="color:red;">bison包必须在3.0.x 版本或以上，2.x版本编译有问题。</b>
+<b style="color:red;">bison包必须在3.0.x 版本或以上，2.x版本编译有问题。</b>  
 linux各种发行版应该都可以，mac上也没有问题。windows未测试。
 ## 编译这个项目
 ```sh build.sh```
