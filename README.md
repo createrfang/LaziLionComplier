@@ -65,9 +65,9 @@ int main() {
 }
 
 ```
-语法树，太长不贴（在src/test/test.ir中）
-错误信息（在语法树转ir时顺便检查了一些生命周期）
-```Error: Cannot find variable k```
+语法树，太长不贴（在src/test/test.ir中）  
+错误信息（在语法树转ir时顺便检查了一些生命周期）  
+```Error: Cannot find variable k```  
 第一次引用k时k未定义所以出错。
 IR tree（在src/test/test.ir中）：
 ```
