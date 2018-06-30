@@ -6,4 +6,5 @@ g++ -c ast.cc -o ast.o
 g++ -c visualize.cc -o visualize.o
 g++ -c irtree.cc -o irtree.o
 g++ -c format.cc -o format.o
-g++ lex/lex.yy.o yacc/parser.tab.o format.o irtree.o ast.o visualize.o -o visualize.out
+g++ -c environment.cc -o environment.o
+g++ lex/lex.yy.o yacc/parser.tab.o environment.o format.o irtree.o ast.o visualize.o -o visualize.out

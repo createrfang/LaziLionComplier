@@ -71,10 +71,10 @@ struct IrMem : public Ir {
 };
 
 struct IrCall : public Ir {
-    Ir *function;
+    std::string functionName;
     Ir *argList;
 
-    IrCall(Ir *function, Ir *argList) : Ir(irCall), function(function), argList(argList) {}
+    IrCall(const std::string &functionName, Ir *argList) : Ir(irCall), functionName(functionName), argList(argList) {}
 
     void display();
 };

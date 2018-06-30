@@ -36,8 +36,7 @@ void IrMem::display() {
 }
 
 void IrCall::display() {
-    print("Call");
-    printSon(function);
+    print("Call function:"+functionName);
     printLastSon(argList);
 }
 

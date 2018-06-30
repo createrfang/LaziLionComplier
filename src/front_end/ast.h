@@ -1,12 +1,14 @@
-#ifndef __AST_H__
-#define __AST_H__
+#ifndef LAZILIONCOMPLIER_AST_H
+#define LAZILIONCOMPLIER_AST_H
 
 #include <stdio.h>
 #include <string>
 #include <algorithm>
+#include <map>
 #include "yacc/parser.tab.hh"
 #include "format.h"
 #include "irtree.h"
+#include "environment.h"
 
 struct AstClass;
 struct AstFuncDef;
@@ -41,9 +43,13 @@ enum AstClassType {
     ctExpElement = 12,
     ctNum = 13,
     ctWhileStmt = 14,
+    ctFuncList = 15,
+    ctVarDefList = 16,
+    ctExpList = 17,
+    ctFunctionCall = 18,
 };
 
-struct AstClass : public TreePrinter{
+struct AstClass : public TreePrinter {
     AstClassType type;
 
     AstClass(AstClassType a) : type(a) {
@@ -51,7 +57,7 @@ struct AstClass : public TreePrinter{
     }
 
     void printCreateInfo() {
-        printf("Create Node %d\n", (int) type);
+        //printf("Create Node %d\n", (int) type);
     }
 
     virtual Ir *translateToIr() = 0;
@@ -59,11 +65,12 @@ struct AstClass : public TreePrinter{
 
 struct AstFuncDef : public AstClass {
     yytokentype dataType;
-    AstClass *name;
+    AstName *name;
+    AstClass *varDefList;
     AstClass *body;
 
-    AstFuncDef(yytokentype a1, AstClass *a2, AstClass *a3) : dataType(a1), name(a2), body(a3),
-                                                             AstClass(ctFuncDef) {}
+    AstFuncDef(yytokentype a1, AstName *a2, AstClass *a3, AstClass *a4) : dataType(a1), name(a2), varDefList(a3),
+                                                                          body(a4), AstClass(ctFuncDef) {}
 
     void display();
 
@@ -121,9 +128,9 @@ struct AstAssignStmt : public AstClass {
 
 struct AstVarDef : public AstClass {
     yytokentype dataType;
-    AstClass *name;
+    AstName *name;
 
-    AstVarDef(yytokentype a1, AstClass *a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
+    AstVarDef(yytokentype a1, AstName *a2) : dataType(a1), name(a2), AstClass(ctVarDef) {}
 
     void display();
 
@@ -202,6 +209,61 @@ struct AstWhileStmt : public AstClass {
 
     Ir *translateToIr();
 };
+
+struct AstCompoundStmt : public AstClass {
+    AstClass *stmtList;
+
+    AstCompoundStmt(AstClass *stmtList) : stmtList(stmtList), AstClass(ctCompoundStmt) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstFuncList : public AstClass {
+    AstClass *funcList;
+    AstClass *funcDef;
+
+    AstFuncList(AstClass *funcDef, AstClass *funcList = NULL) : funcList(funcList), funcDef(funcDef),
+                                                                AstClass(ctFuncList) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstVarDefList : public AstClass {
+    AstClass *list;
+    AstClass *varDef;
+
+    AstVarDefList(AstClass *varDef, AstClass *list = NULL) : varDef(varDef), list(list), AstClass(ctVarDefList) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstExpList : public AstClass {
+    AstClass *list;
+    AstClass *exp;
+
+    AstExpList(AstClass *exp, AstClass *list = NULL) : exp(exp), list(list), AstClass(ctExpList) {}
+
+    void display();
+
+    Ir *translateToIr();
+};
+
+struct AstFunctionCall : public AstClass {
+    AstName *name;
+    AstClass *expList;
+
+    AstFunctionCall(AstName *name, AstClass *expList) : name(name), expList(expList), AstClass(ctFunctionCall) {}
+
+    void display();
+    Ir *translateToIr();
+};
+
 
 extern AstClass *astRoot;
 
