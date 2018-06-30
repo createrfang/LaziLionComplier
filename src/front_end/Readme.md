@@ -1,3 +1,12 @@
-to build: build.sh
-to run visulization: run.sh
-to clean binary files: clean.sh
+#build binaries:
+```
+sh build.sh
+```
+#run visulization:
+```
+sh run.sh
+```
+#clean binaries and generated files:
+```
+sh clean.sh
+```
